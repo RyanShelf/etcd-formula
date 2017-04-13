@@ -33,8 +33,20 @@ etcd-directories-dependency:
     - group: {{ etcd.lookup.group }}
     - mode: '0750'
 
+etcd-packages:
+  pkg.installed:
+    - pkgs:
+      - tar
+      - curl
+      - gpgv
+
+/usr/bin/tar:
+  file.symlink:
+    - target: /bin/tar
+
 etcd-install:
   cmd.run:
+    - shell: /bin/bash
     - name: |
         #!/bin/bash
 
@@ -95,6 +107,9 @@ etcd-install:
         if [[ ! -z ${TMPDIR} ]]; then
           rm -Rf ${TMPDIR}
         fi
+    - require:
+      - pkg: etcd-packages
+      - file: /usr/bin/tar
     - unless:
       - "test -d {{ etcd.binary_directory }}/etcd-v{{ etcd.version }}-linux-amd64"
 
